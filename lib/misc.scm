@@ -39,23 +39,27 @@
 (define (##output-port-column port) 0)
 
 (define (##subproc-id subproc)
-  (##string->symbol
-   (##inline-host-expression "
-(function (subproc) {
-  return Gambit_js2scm(subproc.id);
-}(Gambit_r1))")))
+  (macro-case-target
+   ((js)
+    (##string->symbol
+     (##inline-host-expression "Gambit_js2scm(@1@.id)" subproc)))
+   (else
+    'unknown)))
 
 (define (##object->global-var->identifier obj)
-  (let ((x (##inline-host-expression "
-(function (obj) {
+  (macro-case-target
+   ((js)
+    (let ((x (##inline-host-expression "(function (obj) {
   for (id in Gambit_glo) {
     if (Gambit_glo[id] === obj) {
       return Gambit_js2scm(id);
     }
   }
   return Gambit_js2scm(false);
-}(Gambit_r1))")))
-    (and x (##string->symbol x))))
+}(@1@))" obj)))
+      (and x (##string->symbol x))))
+   (else
+    (and x 'unknown))))
 
 (define (##object->string obj #!optional (width #f))
   (generic-write-to-string obj #f width))
@@ -138,7 +142,9 @@
 
 (define-prim (##apply-global-with-procedure-check-nary gv . args)
   (##declare (not interrupts-enabled))
-  (##apply-with-procedure-check (##global-var-ref gv) args))
+  #;(##apply-with-procedure-check (##global-var-ref gv) args)
+  ;; TODO: for now this gives better error messages because the backtrace lacks information
+  (##apply-with-procedure-check gv args))
 
 (define-prim (##apply-with-procedure-check-nary oper . args)
   (##declare (not interrupts-enabled))

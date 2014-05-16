@@ -1,28 +1,34 @@
 ;;; File: app.scm
 
-(declare (standard-bindings) (extended-bindings) (not safe))
+(declare (standard-bindings) (extended-bindings))
 
-(println "-----------------")
+(##inline-host-declaration #<<host-code-end
 
-(println (trap-eval-string "(+ 1 2)"))
+function jsfn(f) {
+  print("jsfn start");
+  f("hello!"); // f is either the Scheme handler1 or handler2 functions
+  print("jsfn end");
+}
 
-(println "-----------------")
+host-code-end
+)
 
-(println (trap-eval-string "(+ (car 1) 2)"))
+(define jsfn (##inline-host-expression "Gambit_js2scm(jsfn)"))
 
-(println "-----------------")
+(define (handler1 x)
+  (println "handler1 start")
+  (println x)
+  (println "handler1 end"))
 
-(##trap
- (lambda ()
-   (table-ref 111 222)))
+(define (handler2 x)
+  (##trap
+   (lambda ()
+     (println "handler2 start")
+     (foo x)
+     (println "handler2 end"))))
 
-(println "-----------------")
-
-(define (foo x)
-  (car (cons x x x)))
-
-(##trap
-  (lambda ()
-    (foo 99)))
-
-(println "-----------------")
+(println "--------------")
+(jsfn handler1)
+(println "--------------")
+(jsfn handler2)
+(println "--------------")
