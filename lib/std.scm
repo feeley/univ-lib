@@ -576,6 +576,13 @@ end-of-code
   macro-no-check
   macro-no-check)
 
+(define-prim-vector-procedures
+  u8vector
+  0
+  macro-force-vars
+  macro-check-exact-unsigned-int8
+  macro-check-exact-unsigned-int8-list)
+
 (macro-case-target
  ((c)
 
@@ -585,13 +592,6 @@ end-of-code
     macro-force-vars
     macro-check-exact-signed-int8
     macro-check-exact-signed-int8-list)
-
-  (define-prim-vector-procedures
-    u8vector
-    0
-    macro-force-vars
-    macro-check-exact-unsigned-int8
-    macro-check-exact-unsigned-int8-list)
 
   (define-prim-vector-procedures
     s16vector
