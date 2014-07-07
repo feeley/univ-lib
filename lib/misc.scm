@@ -42,7 +42,7 @@
   (macro-case-target
    ((js)
     (##string->symbol
-     (##inline-host-expression "Gambit_js2scm(@1@.id)" subproc)))
+     (##inline-host-expression "gambit_js2scm(@1@.id)" subproc)))
    (else
     'unknown)))
 
@@ -50,12 +50,12 @@
   (macro-case-target
    ((js)
     (let ((x (##inline-host-expression "(function (obj) {
-  for (id in Gambit_glo) {
-    if (Gambit_glo[id] === obj) {
-      return Gambit_js2scm(id);
+  for (id in gambit_glo) {
+    if (gambit_glo[id] === obj) {
+      return gambit_js2scm(id);
     }
   }
-  return Gambit_js2scm(false);
+  return gambit_js2scm(false);
 }(@1@))" obj)))
       (and x (##string->symbol x))))
    (else
@@ -63,6 +63,8 @@
 
 (define (##object->string obj #!optional (width #f))
   (generic-write-to-string obj #f width))
+
+;;; Structure support.
 
 (##define-macro (type-type-literal) (list 'quote ##type-type))
 (define ##type-type (type-type-literal))
@@ -81,6 +83,11 @@
 
 (define-prim (##type-fields type)
   (##unchecked-structure-ref type 5 ##type-type ##type-fields))
+
+(define-prim (##unchecked-structure-ref obj i type proc))
+
+(define-prim (##unchecked-structure-set! obj val i type proc))
+
 
 #;
 (define-prim (##structure-direct-instance-of? obj type-id)

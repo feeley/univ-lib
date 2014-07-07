@@ -113,15 +113,17 @@
 ;; Create the primordial continuation used for new threads
 
 (define ##primordial-continuation #f)
+(define ##initial-continuation #f)
 
 (##continuation-capture
  (lambda (resume)
+   (set! ##primordial-continuation (##continuation-next resume))
    (##continuation-graft-no-winding
-    (##continuation-next resume)
+    ##primordial-continuation
     (lambda ()
       (##continuation-capture
        (lambda (cont)
-         (set! ##primordial-continuation cont)
+         (set! ##initial-continuation cont)
          (##continuation-return-no-winding resume #f)))
       (let* ((ct (##current-thread))
              (thunk (macro-thread-thunk ct)))
@@ -191,7 +193,7 @@
                        #f ;; btq-prev
                        #f ;; toq-next
                        #f ;; toq-prev
-                       ##primordial-continuation ;; cont
+                       ##initial-continuation ;; cont
                        '() ;; denv
                        'new ;; state
                        thunk ;; thunk

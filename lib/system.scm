@@ -6,27 +6,6 @@
 
 ;;;============================================================================
 
-;;; Structure support.
-
-(define-prim (##type-id type)
-  (##unchecked-structure-ref type 1 ##type-type ##type-id))
-
-(define-prim (##type-name type)
-  (##unchecked-structure-ref type 2 ##type-type ##type-name))
-
-(define-prim (##type-flags type)
-  (##unchecked-structure-ref type 3 ##type-type ##type-flags))
-
-(define-prim (##type-super type)
-  (##unchecked-structure-ref type 4 ##type-type ##type-super))
-
-(define-prim (##type-fields type)
-  (##unchecked-structure-ref type 5 ##type-type ##type-fields))
-
-(define-prim (##unchecked-structure-ref obj i type proc))
-
-(define-prim (##unchecked-structure-set! obj val i type proc))
-
 ;;-----------------------------------------------------------------------------
 
 (define (##raise-range-exception arg-num proc . args)
@@ -35,9 +14,10 @@
 (define (##fail-check-exact-integer arg-num proc . args)
   (##list 'arg-num= arg-num '_type= 'exact-integer))
 
+#;
 (define (##fail-check-char arg-num proc . args)
   (##list 'arg-num= arg-num '_type= 'char))
-
+#;
 (define (##fail-check-list arg-num proc . args)
   (##list 'arg-num= arg-num '_type= 'list))
 
@@ -59,6 +39,7 @@
       (##declare (generic)) ;; avoid fixnum specific ##eqv?
       (##eqv? obj1 obj2))))
 
+#;
 (define-prim (##eq? obj1 obj2))
 
 (define-prim (eq? obj1 obj2)
