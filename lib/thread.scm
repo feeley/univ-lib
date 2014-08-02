@@ -33,7 +33,7 @@
   result
   mutex
   condvar
-  id
+  name
 )
 
 (define-type-of-thread-base mutex
@@ -42,12 +42,15 @@
   prefix: macro-
 
   owner
+  name
 )
 
 (define-type-of-thread-base condvar
   id: BB0739DC-AAE0-42C6-AD19-1787DF2CA329
   macros:
   prefix: macro-
+
+  name
 )
 
 ;; Blocked thread queue operations.
@@ -127,7 +130,7 @@
          (##continuation-return-no-winding resume #f)))
       (let* ((ct (##current-thread))
              (thunk (macro-thread-thunk ct)))
-        ;;(println (list (macro-thread-id ct) " starting"));;;;;;;;;;;;
+        ;;(println (list (macro-thread-name ct) " starting"));;;;;;;;;;;;
         (macro-thread-state-set! ct #f)
         ;;(println thunk)
         (let ((result (thunk)))
@@ -167,25 +170,22 @@
         (##thread-restore!
          t
          (lambda ()
-           ;;(println (list (macro-thread-id t) " restoring"));;;;;;;;;;;;
+           ;;(println (list (macro-thread-name t) " restoring"));;;;;;;;;;;;
            #f)))))
 
 (define (dump-rq)
   (let loop1 ((x ##ready-queue))
     (let ((n (macro-thread-base-btq-next x)))
       (if (##not (##eq? n ##ready-queue))
-          (begin (println (macro-thread-id n)) (loop1 n)))))
+          (begin (println (macro-thread-name n)) (loop1 n)))))
   (let loop2 ((x ##ready-queue))
     (let ((p (macro-thread-base-btq-prev x)))
       (if (##not (##eq? p ##ready-queue))
-          (begin (println (macro-thread-id p)) (loop2 p))))))
+          (begin (println (macro-thread-name p)) (loop2 p))))))
 
 ;; Thread operations
 
-(define count 0)
-(define (count++) (set! count (##fx+ count 1)) count)
-
-(define (##make-thread thunk)
+(define (##make-thread thunk name)
   (declare (not interrupts-enabled))
   (macro-btq-init!
    (macro-toq-init!
@@ -198,19 +198,31 @@
                        'new ;; state
                        thunk ;; thunk
                        #f ;; result
-                       (##make-mutex) ;; mutex
-                       (##make-condvar) ;; condvar
-                       (count++) ;; id
+                       (##make-mutex (##void)) ;; mutex
+                       (##make-condvar (##void)) ;; condvar
+                       name ;; name
                       ))))
 
-(define (make-thread thunk)
-  (##make-thread thunk))
+(define-prim (make-thread
+              thunk
+              #!optional
+              (n (macro-absent-obj)))
+  (macro-force-vars (thunk n tg)
+    (let* ((name
+            (if (##eq? n (macro-absent-obj))
+              (##void)
+              n)))
+      (macro-check-procedure thunk 1 (make-thread thunk n tg)
+        (##make-thread thunk name)))))
 
 (define (##thread-start! t)
   (declare (not interrupts-enabled))
   (macro-thread-state-set! t #f)
   (macro-make-runnable! t)
   t)
+
+(define (thread-name t)
+  (macro-thread-name t))
 
 (define (thread-start! t)
   (##thread-start! t))
@@ -246,7 +258,7 @@
         #f ;; only one runnable thread, so don't context switch
         (##thread-save!
          (lambda (ct)
-           ;;(println (list (macro-thread-id ct) " saving"));;;;;;;;;;;;
+           ;;(println (list (macro-thread-name ct) " saving"));;;;;;;;;;;;
            (macro-make-runnable! (macro-btq-remove! ct))
            (##thread-schedule!))))))
 
@@ -255,7 +267,7 @@
 
 ;; Mutex operations
 
-(define (##make-mutex)
+(define (##make-mutex name)
   (declare (not interrupts-enabled))
   (macro-btq-init!
    (macro-make-mutex #f ;; btq-next
@@ -263,10 +275,20 @@
                      #f ;; toq-next
                      #f ;; toq-prev
                      #f ;; owner
+                     name ;; name
                      )))
 
-(define (make-mutex)
-  (##make-mutex))
+(define-prim (make-mutex #!optional (n (macro-absent-obj)))
+  (macro-force-vars (n)
+    (let ((name
+           (if (##eq? n (macro-absent-obj))
+             (##void)
+             n)))
+      (##make-mutex name))))
+
+(define-prim (mutex-name mutex)
+  (macro-force-vars (mutex)
+    (macro-mutex-name mutex)))
 
 (define (##mutex-lock! mut)
   (declare (not interrupts-enabled))
@@ -309,17 +331,27 @@
 
 ;; Condition variable operations
 
-(define (##make-condvar)
+(define (##make-condvar name)
   (declare (not interrupts-enabled))
   (macro-btq-init!
    (macro-make-condvar #f ;; btq-next
                        #f ;; btq-prev
                        #f ;; toq-next
                        #f ;; toq-prev
+                       name ;; name
                        )))
 
-(define (make-condition-variable)
-  (##make-condvar))
+(define-prim (make-condition-variable #!optional (n (macro-absent-obj)))
+  (macro-force-vars (n)
+    (let ((name
+           (if (##eq? n (macro-absent-obj))
+             (##void)
+             n)))
+      (##make-condvar name))))
+
+(define-prim (condition-variable-name condvar)
+  (macro-force-vars (condvar)
+    (macro-condvar-name condvar)))
 
 (define (##condvar-signal! condvar)
   (declare (not interrupts-enabled))
@@ -587,8 +619,9 @@
 
 (let ((pt (##current-thread)))
   (##structure-type-set! pt (macro-type-thread)) ;; assign type descriptor
-  (macro-thread-mutex-set! pt (##make-mutex)) ;; mutex
-  (macro-thread-condvar-set! pt (##make-condvar)) ;; condvar
+  (macro-thread-mutex-set! pt (##make-mutex (##void))) ;; mutex
+  (macro-thread-condvar-set! pt (##make-condvar (##void))) ;; condvar
+  (macro-thread-name-set! pt 'primordial) ;; name
   (macro-make-runnable! pt))
 
 ;;;============================================================================
