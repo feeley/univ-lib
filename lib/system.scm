@@ -8,23 +8,6 @@
 
 ;;-----------------------------------------------------------------------------
 
-(define (##raise-range-exception arg-num proc . args)
-  (##list 'range-exception 'arg-num= arg-num 'range-exception))
-
-(define (##fail-check-exact-integer arg-num proc . args)
-  (##list 'arg-num= arg-num '_type= 'exact-integer))
-
-#;
-(define (##fail-check-char arg-num proc . args)
-  (##list 'arg-num= arg-num '_type= 'char))
-#;
-(define (##fail-check-list arg-num proc . args)
-  (##list 'arg-num= arg-num '_type= 'list))
-
-;(define (##bignum? obj) #f)
-
-;;;----------------------------------------------------------------------------
-
 ;;; Object equality.
 
 (define-prim (##eqv? obj1 obj2)

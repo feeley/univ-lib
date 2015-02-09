@@ -583,6 +583,13 @@ end-of-code
   macro-check-exact-unsigned-int8
   macro-check-exact-unsigned-int8-list)
 
+(define-prim-vector-procedures
+  u16vector
+  0
+  macro-force-vars
+  macro-check-exact-unsigned-int16
+  macro-check-exact-unsigned-int16-list)
+
 (macro-case-target
  ((c)
 
@@ -599,13 +606,6 @@ end-of-code
     macro-force-vars
     macro-check-exact-signed-int16
     macro-check-exact-signed-int16-list)
-
-  (define-prim-vector-procedures
-    u16vector
-    0
-    macro-force-vars
-    macro-check-exact-unsigned-int16
-    macro-check-exact-unsigned-int16-list)
 
   (define-prim-vector-procedures
     s32vector
@@ -1028,7 +1028,7 @@ end-of-code
 
 (define-prim (##symbol? obj)
   (and (##subtyped? obj)
-       (##eq? (##subtype obj) (macro-subtype-symbol))))
+       (##fx= (##subtype obj) (macro-subtype-symbol))))
 
 (define-prim (symbol? obj)
   (macro-force-vars (obj)
@@ -1333,7 +1333,7 @@ end-of-code
 (define-prim (##string=? str1 str2)
   (or (##eq? str1 str2)
       (let ((len1 (##string-length str1)))
-        (if (##eq? len1 (##string-length str2))
+        (if (##fx= len1 (##string-length str2))
             (let loop ((i (##fx- len1 1)))
               (cond ((##fx< i 0)
                      #t)
@@ -1395,7 +1395,7 @@ end-of-code
 (define-prim (##string-ci=? str1 str2)
   (or (##eq? str1 str2)
       (let ((len1 (##string-length str1)))
-        (if (##eq? len1 (##string-length str2))
+        (if (##fx= len1 (##string-length str2))
             (let loop ((i (##fx- len1 1)))
               (cond ((##fx< i 0)
                      #t)
@@ -1479,7 +1479,7 @@ end-of-code
 
 (define-prim (##procedure? obj)
   (and (##subtyped? obj)
-       (##eq? (##subtype obj) (macro-subtype-procedure))))
+       (##fx= (##subtype obj) (macro-subtype-procedure))))
 
 (define-prim (procedure? obj)
   (macro-force-vars (obj)
@@ -1559,7 +1559,7 @@ end-of-code
                                 '()
                                 (map-n (##cons x y)))
                             (let ((len2 (proper-list-length (##car lsts))))
-                              (if (##eq? len1 len2)
+                              (if (##fx= len1 len2)
                                   (loop (##cdr lsts) (##fx+ arg-num 1))
                                   (if len2
                                       (##raise-improper-length-list-exception
@@ -1653,7 +1653,7 @@ end-of-code
                                 (for-each-n (##cons x y))
                                 (##void))
                             (let ((len2 (proper-list-length (##car lsts))))
-                              (if (##eq? len1 len2)
+                              (if (##fx= len1 len2)
                                   (loop (##cdr lsts) (##fx+ arg-num 1))
                                   (if len2
                                       (##raise-improper-length-list-exception
@@ -1725,7 +1725,7 @@ end-of-code
 
 (define-prim (##keyword? obj)
   (and (##subtyped? obj)
-       (##eq? (##subtype obj) (macro-subtype-keyword))))
+       (##fx= (##subtype obj) (macro-subtype-keyword))))
 
 (define-prim (keyword? obj)
   (##keyword? obj))

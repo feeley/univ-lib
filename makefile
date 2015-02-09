@@ -5,32 +5,40 @@ all: js
 all2: js php python ruby
 
 gsi:
-	gsi app.scm
+	gsi app1.scm
 
-js:
-	$(GSC) -c -target js app.scm
-	d8 app.js
+js: app1.js
+	time d8 app1.js
 
-php:
-	$(GSC) -c -target php app.scm
-	php app.php
+app1.js: app1.scm
+	$(GSC) -c -target js app1.scm
 
-python:
-	$(GSC) -c -target python app.scm
-	python app.py
+php: app1.php
+	time php app1.php
 
-ruby:
-	$(GSC) -c -target ruby app.scm
-	ruby app.rb
+app1.php:
+	$(GSC) -c -target php app1.scm
+
+python: app1.py
+	time python app1.py
+
+app1.py:
+	$(GSC) -c -target python app1.scm
+
+ruby: app1.rb
+	time ruby app1.rb
+
+app1.rb:
+	$(GSC) -c -target ruby app1.scm
 
 clean:
-	rm -f app.js app.php app.py app.rb *~ lib/*~
+	rm -f app1.js app1.php app1.py app1.rb *~ lib/*~
 
 tar:
 	rm -rf univ-lib
 	mkdir univ-lib
 	cp makefile univ-lib
-	cp app.scm univ-lib
+	cp app1.scm univ-lib
 	cp -r lib univ-lib
 	COPYFILE_DISABLE=1 tar cf univ-lib.tar univ-lib
 	rm -rf univ-lib

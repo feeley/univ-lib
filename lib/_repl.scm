@@ -3112,6 +3112,7 @@
 
 (set! ##primordial-exception-handler-hook ##repl-exception-handler-hook)
 
+#;
 (if (##fx= (macro-debug-settings-error (##set-debug-settings! 0 0))
            (macro-debug-settings-error-single-step))
     (##step-on))

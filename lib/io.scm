@@ -138,8 +138,8 @@
    0
    #f                      ;; eof?
    #f                      ;; read-buf
-   (##make-mutex)          ;; mutex
-   (##make-condvar)        ;; condvar
+   (##make-mutex #f)       ;; mutex
+   (##make-condvar #f)     ;; condvar
    ))
 
 (define (##string-port-get-char! port)
@@ -272,9 +272,9 @@
 
 (define (##open-vector)
   (macro-make-vector-port
-   (macro-make-fifo) ;; fifo
-   (##make-mutex)   ;; mutex
-   (##make-condvar) ;; condvar
+   (macro-make-fifo)   ;; fifo
+   (##make-mutex #f)   ;; mutex
+   (##make-condvar #f) ;; condvar
    ))
 
 (define (##vector-port-get-object! port)

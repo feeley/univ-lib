@@ -17,7 +17,6 @@
 (define-prim (##eq? x y))
 
 (define (##set-debug-settings! . rest) #f)
-(define (##fxarithmetic-shift-right . rest) 0)
 
 (define (##closure? x) #t)
 (define (##global-var->identifier x) x)
@@ -42,7 +41,7 @@
   (macro-case-target
    ((js)
     (##string->symbol
-     (##inline-host-expression "gambit_js2scm(@1@.id)" subproc)))
+     (##inline-host-expression "gambit_js2scm(@1@.parent.proc_name)" subproc)))
    (else
     'unknown)))
 
