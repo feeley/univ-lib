@@ -38,6 +38,9 @@
 (define (##output-port-column port) 0)
 
 (define (##subproc-id subproc)
+  (println (##object->string subproc))
+  (##inline-host-statement "print(@1@.parent);\n" subproc)
+  (##inline-host-statement "print(@1@.id);\n" subproc)
   (macro-case-target
    ((js)
     (##string->symbol
