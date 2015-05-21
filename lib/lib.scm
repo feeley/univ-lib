@@ -32,6 +32,14 @@
 (define ##bignum.mdigit-width 14)
 (define ##bignum.fdigit-width 14)
 
+(define ##max-char 65535)
+(define (##global-var? sym) #t)
+(define (##system-version) 407002)
+
+(define (error . msgs)
+  (for-each pretty-print msgs)
+  (exit 1))
+
 (##include "thread.scm")
 (##include "_num.scm")
 ;(##include "num.scm")(##include "bignum.scm")
